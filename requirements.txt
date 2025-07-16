@@ -3,3 +3,4 @@ streamlit
 pillow
 streamlit-calendar
 plotly
+pandas
