@@ -2,3 +2,4 @@ google-generativeai
 streamlit
 pillow
 streamlit-calendar
+plotly
