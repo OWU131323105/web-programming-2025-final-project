@@ -7,7 +7,6 @@ import plotly.express as px
 import streamlit_calendar as st_calendar
 
 
-# かわいいCSSを追加
 st.markdown('''
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap');
@@ -41,19 +40,22 @@ st.markdown('''
         color: #fff;
     }
     .small-delete-btn {
-        background-color: #ffb6c1;
-        color: #fff;
-        border: none;
-        border-radius: 50px;
-        padding: 2px 10px;
-        font-size: 12px;
-        cursor: pointer;
-        margin-left: 4px;
-        transition: 0.2s;
+        background-color: #ffb6c1 !important;
+        color: #fff !important;
+        border: none !important;
+        border-radius: 50px !important;
+        padding: 2px 10px !important;
+        font-size: 12px !important;
+        cursor: pointer !important;
+        margin-left: 4px !important;
+        transition: 0.2s !important;
+        min-width: 0 !important;
+        width: auto !important;
+        height: auto !important;
     }
     .small-delete-btn:hover {
-        background-color: #e75480;
-        color: #fff;
+        background-color: #e75480 !important;
+        color: #fff !important;
     }
     .stTextInput>div>input, .stTextArea textarea {
         border-radius: 12px;
@@ -97,7 +99,7 @@ if "favorite_videos" not in st.session_state:
 
 # プロフィール管理
 if menu == 'プロフィール管理':
-    st.header("💖 推し管理・プロフィール")
+    st.header("💖 推しプロフィール")
     oshiname = st.text_input("推しの名前")
     birthday = st.date_input("誕生日", min_value=date(1900, 1, 1), max_value=date.today())
     
@@ -277,12 +279,32 @@ elif menu == 'グッズコレクション':
         st.success("グッズを登録しました！")
     if st.session_state.collections:
         st.subheader("🎀 グッズコレクション一覧")
-        for item in st.session_state.collections:
-            st.write("名前:", item["name"])
-            if item["image"]:
-                st.image(item["image"])
-            st.write("入手日:", item["date"])
-            st.write("メモ:", item["notes"])
+        for idx, item in enumerate(st.session_state.collections):
+            col1, col2 = st.columns([8,2])
+            with col1:
+                st.write("名前:", item["name"])
+                if item["image"]:
+                    st.image(item["image"])
+                st.write("入手日:", item["date"])
+                st.write("メモ:", item["notes"])
+            with col2:
+                if st.button("編集", key=f"edit_goods_{idx}"):
+                    st.session_state[f"edit_goods_show_{idx}"] = True
+            if st.session_state.get(f"edit_goods_show_{idx}", False):
+                new_name = st.text_input("グッズ名を編集", value=item["name"], key=f"edit_goods_name_{idx}")
+                new_image = st.file_uploader("画像を再アップロード（省略可）", type=["jpg", "png"], key=f"edit_goods_image_{idx}")
+                new_date = st.date_input("入手日を編集", value=item["date"], key=f"edit_goods_date_{idx}")
+                new_notes = st.text_area("メモを編集", value=item["notes"], key=f"edit_goods_notes_{idx}")
+                if st.button("更新", key=f"edit_goods_update_{idx}"):
+                    st.session_state.collections[idx]["name"] = new_name
+                    if new_image is not None:
+                        st.session_state.collections[idx]["image"] = new_image
+                    st.session_state.collections[idx]["date"] = new_date
+                    st.session_state.collections[idx]["notes"] = new_notes
+                    st.session_state[f"edit_goods_show_{idx}"] = False
+                    st.success("グッズ情報を更新しました！")
+                    st.rerun()
+            st.divider()
 
 # 支出管理
 elif menu == '支出管理':
@@ -309,9 +331,9 @@ elif menu == '支出管理':
             with col1:
                 st.write(f"{expense['date']} | {expense['category']} | {expense['item']} | {expense['amount']}円")
             with col2:
-                delete_btn_html = f'''<form action="" method="post"><button class="small-delete-btn" type="submit" name="delete_{idx}">削除</button></form>'''
-                st.markdown(delete_btn_html, unsafe_allow_html=True)
-                if st.session_state.get(f"delete_{idx}", False) or st.button("", key=f"delete_expense_{idx}", help="削除"):
+                delete_btn = st.button("削除", key=f"delete_expense_{idx}")
+                st.markdown('<style>div[data-testid="stButton"] button {min-width:0;width:auto;height:auto;padding:2px 10px;font-size:12px;border-radius:50px;background-color:#ffb6c1;color:#fff;}</style>', unsafe_allow_html=True)
+                if delete_btn:
                     st.session_state.expenses.pop(idx)
                     st.success("支出を削除しました！")
                     st.rerun()
@@ -360,3 +382,4 @@ elif menu == 'チャットボット':
             with st.chat_message("assistant"):
                 response = model.generate_content(prompt)
                 st.markdown(response.text)
+
