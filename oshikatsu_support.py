@@ -214,7 +214,7 @@ elif menu == 'カレンダー':
     events = []
     for event_date_str, event_list in st.session_state.calendar_events.items():
         for idx, event in enumerate(event_list):
-            events.append({"date": str(event_date_str), "title": event["title"], "color": "#ffb6c1"})
+            events.append({"date": str(event_date_str), "title": event["title"], "color": theme_color})
     selected_date_dict = st_calendar.calendar(events=events)
     selected_date = str(selected_date_dict.get("selected_date", ""))  # 正しいキーを使用して日付を取得
     
