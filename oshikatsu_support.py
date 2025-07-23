@@ -78,7 +78,7 @@ st.title('推し活サポートアプリ')
 # サイドバーで機能選択
 menu = st.sidebar.selectbox(
     '機能を選択してください',
-    ('プロフィール管理', 'カレンダーと日記', 'グッズコレクション', '支出管理', 'チャットボット')
+    ('プロフィール管理', 'カレンダー', 'グッズコレクション', '支出管理', 'AIチャット')
 )
 
 # 共通のセッションステート初期化
@@ -100,6 +100,9 @@ if "favorite_videos" not in st.session_state:
 # プロフィール管理
 if menu == 'プロフィール管理':
     st.header("💖 推しプロフィール")
+    st.markdown("""
+あなたの「推し」のすべてをここに集約！名前や誕生日、SNS、推しの「ここが好き！」ポイントまで、あなただけの特別な「推しのプロフィール」を作成・管理できるよ。
+""")
     oshiname = st.text_input("推しの名前")
     birthday = st.date_input("誕生日", min_value=date(1900, 1, 1), max_value=date.today())
     
@@ -136,7 +139,7 @@ if menu == 'プロフィール管理':
             thumbnail_url = f"https://img.youtube.com/vi/{video_id}/0.jpg"
             st.image(thumbnail_url, caption="サムネイル", use_container_width=True)
     
-    appearances = st.text_area("🌟 出演情報リンク集")
+    appearances = st.text_area("🌟 その他")
     if st.button("プロフィールを保存💾"):
         st.session_state.profiles.append({
             "name": oshiname,
@@ -175,11 +178,14 @@ if menu == 'プロフィール管理':
                     continue
                 thumbnail_url = f"https://img.youtube.com/vi/{video_id}/0.jpg"
                 st.image(thumbnail_url, caption="サムネイル", use_container_width=True)
-            st.write("出演情報リンク集:", profile["appearances"])
+            st.write("その他:", profile["appearances"])
 
-# カレンダーと日記の統合ページ
-elif menu == 'カレンダーと日記':
-    st.header("📅 推し活カレンダーと日記")
+# カレンダー
+elif menu == 'カレンダー':
+    st.header("📅 推し活カレンダー")
+    st.markdown("""
+大切な推し活の思い出をカレンダーに記録しよう！イベントに参加した日や配信を見た日、その時の感動や出来事を日記のように残せるよ。後から見返して、推しと過ごした日々を振り返ろう！
+""")
     
     # カレンダー表示
     st.subheader("🗓️ カレンダー")
@@ -194,7 +200,7 @@ elif menu == 'カレンダーと日記':
     st.subheader("🎀 イベント入力")
     event_date = st.date_input("イベントの日付を選択してください", value=date.today())  # 自由に日付を選択可能
     event_title = st.text_input("イベントタイトルを入力してください")
-    event_note = st.text_area("イベントの詳細を入力してください")
+    event_note = st.text_area("イベントの詳細・日記を入力してください")
     if st.button("イベントを保存💾"):
         date_str = str(event_date)
         event_obj = {"title": event_title, "note": event_note}
@@ -203,34 +209,6 @@ elif menu == 'カレンダーと日記':
         st.session_state.calendar_events[date_str].append(event_obj)
         st.success("イベントを保存しました！")
     
-    # 日記入力
-    if selected_date:  # 日付が選択されている場合のみ処理を続行
-        st.subheader("📔 日記")
-        diary_text = st.text_area("日記を書く", key="diary_text")
-        uploaded_image = st.file_uploader("画像をアップロード", type=["jpg", "png"], key="diary_image")
-        if st.button("日記を保存💾"):
-            st.session_state.diary_entries[selected_date] = {
-                "text": diary_text,
-                "image": uploaded_image
-            }
-            st.session_state.calendar_events[selected_date] = {
-                "title": "日記",
-                "note": diary_text
-            }
-            st.success("日記を保存しました！")
-        
-        # 日記表示
-        if selected_date in st.session_state.diary_entries:
-            st.subheader("📝 日記の詳細")
-            st.write("内容:", st.session_state.diary_entries[selected_date]["text"])
-            if st.session_state.diary_entries[selected_date]["image"]:
-                st.image(st.session_state.diary_entries[selected_date]["image"])
-            if st.button("日記を編集✏️"):
-                st.session_state.diary_entries[selected_date]["text"] = st.text_area(
-                    "内容を編集", st.session_state.diary_entries[selected_date]["text"], key="edit_diary_text"
-                )
-                st.session_state.calendar_events[selected_date]["note"] = st.session_state.diary_entries[selected_date]["text"]
-                st.success("日記を更新しました！")
     
     # カレンダーに表示されるイベント一覧
     st.subheader("🎉 イベント一覧")
@@ -265,6 +243,9 @@ elif menu == 'カレンダーと日記':
 # グッズコレクション
 elif menu == 'グッズコレクション':
     st.header("🧸 グッズコレクション管理")
+    st.markdown("""
+お気に入りの推しグッズを、写真付きで楽しくコレクション！いつ手に入れたかなどの情報も記録して、あなただけのグッズカタログを作ろう！持っているグッズをいつでも一目で確認できるよ。
+""")
     item_name = st.text_input("グッズ名")
     item_image = st.file_uploader("画像をアップロード", type=["jpg", "png"])
     item_date = st.date_input("入手日")
@@ -309,6 +290,9 @@ elif menu == 'グッズコレクション':
 # 支出管理
 elif menu == '支出管理':
     st.header("💰 推し活支出管理")
+    st.markdown("""
+推し活にかける愛の証を「見える化」！グッズ購入や配信への課金など、推し活の支出を記録すれば、何にどれくらい使っているかがグラフで一目瞭然。かしこく楽しい推し活にしよう！
+""")
     expense_date = st.date_input("日付を選択してください")
     expense_category = st.selectbox("カテゴリを選択してください", ["グッズ", "配信", "イベント", "その他"])
     expense_item = st.text_input("項目")
@@ -357,12 +341,15 @@ elif menu == '支出管理':
             st.plotly_chart(fig)
 
 # チャットボット
-elif menu == 'チャットボット':
-    st.header("🤖 シンプルなチャットボット")
+elif menu == 'AIチャット':
+    st.header("推し活サポートAIチャット")
+    st.markdown("""
+推し活での「知りたい！」や「困ったな」は、AIチャットボットにお任せ！イベント情報から会場アクセス、ライブの準備、お得なグッズ購入方法まで、あなたの質問に的確にお答えするよ。
+""")
     api_key = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel('gemini-2.0-flash-lite')
-    prompt = st.chat_input("入力してね")
+    prompt = st.chat_input("「このイベントの会場はどのくらいのキャパ？」「この会場に行くまでに、◯◯からだとどのくらいかかる？」「次のライブに向けて何を準備したらいい？」")
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
