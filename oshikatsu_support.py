@@ -230,6 +230,7 @@ elif menu == 'カレンダー':
             st.session_state.calendar_events[date_str] = []
         st.session_state.calendar_events[date_str].append(event_obj)
         st.success("イベントを保存しました！")
+        st.rerun()
     
     
     # カレンダーに表示されるイベント一覧
