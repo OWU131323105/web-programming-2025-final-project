@@ -7,26 +7,48 @@ import plotly.express as px
 import streamlit_calendar as st_calendar
 
 
-st.markdown('''
+
+
+# サイドバーの一番上にテーマカラー選択
+with st.sidebar:
+    st.markdown('### 🎨 テーマカラーを選択')
+    default_color = '#ffb6c1'
+    theme_color = st.color_picker('好きな色を選んでね', value=st.session_state.get('theme_color', default_color), key='theme_color')
+
+# 明るい色・濃い色を自動生成（簡易）
+import colorsys
+def adjust_color(hex_color, factor):
+    hex_color = hex_color.lstrip('#')
+    r, g, b = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+    h, l, s = colorsys.rgb_to_hls(r/255, g/255, b/255)
+    l = max(0, min(1, l * factor))
+    r2, g2, b2 = colorsys.hls_to_rgb(h, l, s)
+    return '#{:02x}{:02x}{:02x}'.format(int(r2*255), int(g2*255), int(b2*255))
+
+color_main = theme_color
+color_dark = adjust_color(theme_color, 0.7)  # 濃い色
+color_light = adjust_color(theme_color, 1.3)  # 明るい色
+
+st.markdown(f'''
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap');
-    html, body, [class^="css"] {
+    html, body, [class^="css"] {{
         font-family: 'Kosugi Maru', 'Rounded Mplus 1c', 'Meiryo', sans-serif;
-        background: linear-gradient(135deg, #ffe6f2 0%, #fff0f5 100%);
-    }
-    .stApp {
-        background: linear-gradient(135deg, #ffe6f2 0%, #fff0f5 100%);
-    }
-    h1, h2, h3, h4 {
-        color: #e75480;
+        background: linear-gradient(135deg, {color_light} 0%, #fff0f5 100%);
+    }}
+    .stApp {{
+        background: linear-gradient(135deg, {color_light} 0%, #fff0f5 100%);
+    }}
+    h1, h2, h3, h4 {{
+        color: {color_dark};
         font-family: 'Kosugi Maru', 'Rounded Mplus 1c', 'Meiryo', sans-serif;
         border-radius: 12px;
         padding: 4px 12px;
-        background: #fff0f5;
+        background: {color_light};
         display: inline-block;
-    }
-    .stButton>button {
-        background-color: #ffb6c1;
+    }}
+    .stButton>button {{
+        background-color: {color_main};
         color: #fff;
         border-radius: 20px;
         border: none;
@@ -34,13 +56,13 @@ st.markdown('''
         font-size: 18px;
         font-family: 'Kosugi Maru', 'Rounded Mplus 1c', 'Meiryo', sans-serif;
         transition: 0.2s;
-    }
-    .stButton>button:hover {
-        background-color: #e75480;
+    }}
+    .stButton>button:hover {{
+        background-color: {color_dark};
         color: #fff;
-    }
-    .small-delete-btn {
-        background-color: #ffb6c1 !important;
+    }}
+    .small-delete-btn {{
+        background-color: {color_main} !important;
         color: #fff !important;
         border: none !important;
         border-radius: 50px !important;
@@ -52,24 +74,24 @@ st.markdown('''
         min-width: 0 !important;
         width: auto !important;
         height: auto !important;
-    }
-    .small-delete-btn:hover {
-        background-color: #e75480 !important;
+    }}
+    .small-delete-btn:hover {{
+        background-color: {color_dark} !important;
         color: #fff !important;
-    }
-    .stTextInput>div>input, .stTextArea textarea {
+    }}
+    .stTextInput>div>input, .stTextArea textarea {{
         border-radius: 12px;
-        border: 2px solid #ffb6c1;
-        background: #fff0f5;
-    }
-    .stDataFrameContainer {
+        border: 2px solid {color_main};
+        background: {color_light};
+    }}
+    .stDataFrameContainer {{
         border-radius: 12px;
-        border: 2px solid #ffb6c1;
-        background: #fff0f5;
-    }
-    .stSidebar {
-        background: linear-gradient(135deg, #ffe6f2 0%, #fff0f5 100%);
-    }
+        border: 2px solid {color_main};
+        background: {color_light};
+    }}
+    .stSidebar {{
+        background: linear-gradient(135deg, {color_light} 0%, #fff0f5 100%);
+    }}
     </style>
 ''', unsafe_allow_html=True)
 
